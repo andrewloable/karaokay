@@ -37,7 +37,6 @@ export class AppComponent implements OnInit {
       return 0;
     });
     this.filterdSongs = this.songs.slice(0, 25);
-    this.getNextSong();
   }
 
   filterSearch(): void {
