@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,5 +17,7 @@ namespace KaraokayListMaker.models
         public string? Id { get; set; }
         [JsonProperty("snippet")]
         public Snippet? Snippet { get; set; }
-    }
+        [JsonProperty("contentDetails")]
+        public ContentDetail? ContentDetail { get; set; }
+  }
 }

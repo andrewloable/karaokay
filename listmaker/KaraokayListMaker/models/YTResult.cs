@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace KaraokayListMaker.models
 {
-    public class YTResult
+    public class YtResult
     {
         [JsonProperty("kind")]
         public string? Kind { get; set; }
