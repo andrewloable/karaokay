@@ -15,20 +15,6 @@ export class AppComponent implements OnInit {
   filterdSongs: Song[] = [];
   searchText = '';
   queueSongs: Song[] = [];
-  ytplayer!: YT.Player;
-  ytPlayerVars: YT.PlayerVars = {
-    autoplay: 1,
-    controls: 0,
-    disablekb: 1,
-    enablejsapi: 1,
-    rel: 0,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    cc_load_policy: 0,
-    // eslint-disable-next-line @typescript-eslint/naming-convention
-    iv_load_policy: 3,
-    modestbranding: 1,
-    showinfo: 0,
-  };
   isPaused = false;
   timeout!: number;
 
@@ -41,9 +27,6 @@ export class AppComponent implements OnInit {
 
   ngOnInit(): void {
     void this.loadSongLibrary();
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    document.body.appendChild(tag);
   }
   
   async loadSongLibrary(): Promise<void> {
@@ -70,11 +53,6 @@ export class AppComponent implements OnInit {
     this.queueSongs.unshift(s);
   }
 
-  onPlayerReady(player: YT.PlayerEvent): void {
-    this.ytplayer = player.target;
-    this.ytplayer.playVideo();
-  }
-
   getNextSong(): void {
     if (this.queueSongs.length > 0) {
       const newsong = this.queueSongs.shift();
@@ -85,81 +63,20 @@ export class AppComponent implements OnInit {
       this.currentSongId = newsong?.id ?? '';
     }
     console.log(`playing ${this.currentSongId}`);
-    window.setTimeout(() => {
-
-      try {
-        this.ytplayer.playVideo();
-        window.setTimeout( () => {
-          if (this.ytplayer.getPlayerState() === -1) {
-            void this.otherWindowPlay();
-          }
-        }, 1000);
-      }
-      catch {
-        void this.otherWindowPlay();
-      }
-
-    }, 1000);    
-  }
-
-  onStateChanged(state: YT.OnStateChangeEvent): void {
-    switch (state.data) {
-      case YT.PlayerState.ENDED:
-        console.log(`ended ${this.currentSongId}`);
-        this.getNextSong();
-        break;
-      case YT.PlayerState.PAUSED:
-        console.log(`paused ${this.currentSongId}`);
-        this.isPaused = true;
-        break;
-      case YT.PlayerState.PLAYING:
-        console.log(`playing ${this.currentSongId}`);
-        this.isPaused = false;
-        break;
-      case YT.PlayerState.BUFFERING:
-        console.log(`buffering ${this.currentSongId}`);
-        break;
-      case YT.PlayerState.UNSTARTED:
-        console.log(`unstarted ${this.currentSongId}`);
-        break;
-      case YT.PlayerState.CUED:
-        console.log(`cued ${this.currentSongId}`);
-        if (this.timeout) {
-          clearInterval(this.timeout);
-        }
-        this.timeout = window.setTimeout(async () => {
-          if (this.ytplayer.getPlayerState() !== YT.PlayerState.PLAYING) {
-            console.log(`not playing ${this.currentSongId}, go to next`);
-            void this.otherWindowPlay();
-          }
-        }, 1000);
-        break;
-    }
+    void this.otherWindowPlay();
   }
 
   async otherWindowPlay(): Promise<void> {
     const duration = await this.getYtDuration(this.currentSongId);
     const wind = window.open(`https://www.youtube.com/v/${this.currentSongId}?autoplay=1&fs=1`, '_blank', `location=no, toolbar=no, status=no, menubar=no, titlebar=no, width=${screen.availWidth}, height=${screen.availHeight}`);
+    if ((wind?.document.fullscreenElement !== undefined && document.fullscreenElement === null)){
+      wind.document.body.requestFullscreen();
+    }
     //wind?.resizeTo(screen.width, screen.height);
     window.setTimeout( () => {
       wind?.close();
       this.getNextSong();
     }, duration * 1000);
-  }
-
-  onPlayerError(ev: YT.OnErrorEvent): void {
-    console.log(ev);
-  }
-
-  togglePlay(): void {
-    if (this.isPaused) {
-      this.ytplayer.playVideo();
-      console.log(`playing ${this.currentSongId}`);
-    }
-    else {
-      this.ytplayer.pauseVideo();
-      console.log(`pausing ${this.currentSongId}`);
-    }
   }
 
   async getYtDuration(id: string): Promise<number> {
