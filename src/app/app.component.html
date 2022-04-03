@@ -1,5 +1,6 @@
 <mat-card style="width: 100%;" class="play-control">
   <button mat-raised-button color="primary" (click)="getNextSong()">{{ isPlaying ? 'Next' : 'Play'}}</button>
+  <h4 *ngIf="currentSong">Now Playing {{ currentSong.title }}</h4>
 </mat-card>
 <mat-tab-group>
   <mat-tab label="Song Library" >
